@@ -3,15 +3,18 @@ package fr.bloup.blurpapi;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BlurpAPI extends JavaPlugin {
+    private static JavaPlugin pluginInstance;
 
-    @Override
-    public void onEnable() {
-        // Plugin startup logic
-
+    public static void enable(JavaPlugin plugin) {
+        if (pluginInstance == null) {
+            pluginInstance = plugin;
+        }
     }
 
-    @Override
-    public void onDisable() {
-        // Plugin shutdown logic
+    public static JavaPlugin getPlugin() {
+        if (pluginInstance == null) {
+            throw new IllegalStateException("BlurpAPI has not been initialized correctly, please use BlurpAPI.enable(plugin) to initialize it.");
+        }
+        return pluginInstance;
     }
 }
