@@ -18,7 +18,7 @@ public class BlurpItem {
     private boolean glow = false;
     private Integer customModelData = null;
 
-    public static BlurpItem from(ItemStack item) {
+    public BlurpItem from(ItemStack item) {
         BlurpItem blurp = new BlurpItem();
         blurp.material = item.getType();
 

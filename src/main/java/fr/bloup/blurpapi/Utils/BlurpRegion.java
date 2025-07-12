@@ -11,7 +11,7 @@ public class BlurpRegion {
         CUBOID, SPHERE, CYLINDER, POLYGON
     }
 
-    public static class RegionData {
+    private static class RegionData {
         public final RegionType type;
         public final List<Location> polygonPoints;
         public final Location loc1;

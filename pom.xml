@@ -41,6 +41,14 @@
         </plugins>
     </build>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>BlurpAPI</name>
+            <url>https://maven.pkg.github.com/bloupyi/BlurpAPI</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>papermc-repo</id>

@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class BlurpAPI extends JavaPlugin {
     private static JavaPlugin pluginInstance;
 
-    public static void enable(JavaPlugin plugin) {
+    public static void init(JavaPlugin plugin) {
         if (pluginInstance == null) {
             pluginInstance = plugin;
         }
