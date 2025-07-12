@@ -1,4 +1,4 @@
-package fr.bloup.blurpapi.Utils;
+package fr.bloup.blurpapi.utils;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

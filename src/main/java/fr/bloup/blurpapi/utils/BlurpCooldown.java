@@ -1,4 +1,4 @@
-package fr.bloup.blurpapi.Utils;
+package fr.bloup.blurpapi.utils;
 
 public class BlurpCooldown {
     private int cooldownTicks = 0;

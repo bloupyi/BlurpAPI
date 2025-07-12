@@ -1,4 +1,4 @@
-package fr.bloup.blurpapi.Utils;
+package fr.bloup.blurpapi.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package fr.bloup.blurpapi.Utils;
+package fr.bloup.blurpapi.utils;
 
 import fr.bloup.blurpapi.BlurpAPI;
 import org.bukkit.scheduler.BukkitRunnable;
