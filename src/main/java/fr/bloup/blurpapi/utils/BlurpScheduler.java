@@ -84,7 +84,6 @@ public class BlurpScheduler {
                 runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
             }
         } else {
-            // Une seule exécution si period <= 0
             runnable = new BukkitRunnable() {
                 @Override
                 public void run() {

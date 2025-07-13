@@ -13,7 +13,7 @@ public final class BlurpAPI extends JavaPlugin {
 
     public static JavaPlugin getPlugin() {
         if (pluginInstance == null) {
-            throw new IllegalStateException("BlurpAPI has not been initialized correctly, please use BlurpAPI.enable(plugin) to initialize it.");
+            throw new IllegalStateException("BlurpAPI has not been initialized correctly, please use BlurpAPI.init(plugin) to initialize it.");
         }
         return pluginInstance;
     }
