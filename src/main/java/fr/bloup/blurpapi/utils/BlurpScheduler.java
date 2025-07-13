@@ -38,23 +38,36 @@ public class BlurpScheduler {
     }
 
     public void run(Runnable task) {
-        if (repeatTimes <= 0 || period <= 0) {
-            runnable = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    task.run();
-                    if (onComplete != null) onComplete.run();
+        if (repeatTimes <= 0) {
+            if (period > 0) {
+                runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        task.run();
+                    }
+                };
+                if (async) {
+                    runnable.runTaskTimerAsynchronously(BlurpAPI.getPlugin(), afterTicks, period);
+                } else {
+                    runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
                 }
-            };
-            if (async) {
-                runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
             } else {
-                runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
+                runnable = new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        task.run();
+                        if (onComplete != null) onComplete.run();
+                    }
+                };
+                if (async) {
+                    runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
+                } else {
+                    runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
+                }
             }
-        } else {
+        } else if (period > 0) {
             runnable = new BukkitRunnable() {
                 int counter = 0;
-
                 @Override
                 public void run() {
                     if (counter++ >= repeatTimes) {
@@ -69,6 +82,20 @@ public class BlurpScheduler {
                 runnable.runTaskTimerAsynchronously(BlurpAPI.getPlugin(), afterTicks, period);
             } else {
                 runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
+            }
+        } else {
+            // Une seule exécution si period <= 0
+            runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    task.run();
+                    if (onComplete != null) onComplete.run();
+                }
+            };
+            if (async) {
+                runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
+            } else {
+                runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
             }
         }
     }
