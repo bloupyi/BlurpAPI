@@ -37,7 +37,7 @@ public class BlurpScheduler {
         return this;
     }
 
-    public void run(Runnable task) {
+    public BlurpScheduler run(Runnable task) {
         if (repeatTimes <= 0) {
             if (period > 0) {
                 runnable = new BukkitRunnable() {
@@ -97,6 +97,7 @@ public class BlurpScheduler {
                 runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
             }
         }
+        return this;
     }
 
     public void cancel() {
