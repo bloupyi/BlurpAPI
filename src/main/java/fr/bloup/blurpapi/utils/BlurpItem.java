@@ -98,7 +98,7 @@ public class BlurpItem {
             }
         }
 
-        if (glow && enchantments.isEmpty()) {
+        if (glow && (enchantments == null || enchantments.isEmpty())) {
             item.addUnsafeEnchantment(Enchantment.CHANNELING, 1);
             meta = item.getItemMeta();
             if (meta != null) {
