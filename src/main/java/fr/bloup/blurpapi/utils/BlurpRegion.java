@@ -11,7 +11,7 @@ public class BlurpRegion {
         CUBOID, SPHERE, CYLINDER, POLYGON
     }
 
-    private static class RegionData {
+    private class RegionData {
         public final RegionType type;
         public final List<Location> polygonPoints;
         public final Location loc1;
@@ -31,26 +31,30 @@ public class BlurpRegion {
         }
     }
 
-    public BlurpRegion cuboid(String name, Location loc1, Location loc2) {
-        regions.put(name, new RegionData(RegionType.CUBOID, loc1, loc2, null, 0, 0, null));
-        return this;
+    public RegionData cuboid(String name, Location loc1, Location loc2) {
+        RegionData data = new RegionData(RegionType.CUBOID, loc1, loc2, null, 0, 0, null);
+        regions.put(name, data);
+        return data;
     }
 
-    public BlurpRegion sphere(String name, Location center, int radius) {
-        regions.put(name, new RegionData(RegionType.SPHERE, null, null, center, radius, 0, null));
-        return this;
+    public RegionData sphere(String name, Location center, int radius) {
+        RegionData data =new RegionData(RegionType.SPHERE, null, null, center, radius, 0, null);
+        regions.put(name, data);
+        return data;
     }
 
-    public BlurpRegion cylinder(String name, Location center, int radius, int height) {
-        regions.put(name, new RegionData(RegionType.CYLINDER, null, null, center, radius, height, null));
-        return this;
+    public RegionData cylinder(String name, Location center, int radius, int height) {
+        RegionData data = new RegionData(RegionType.CYLINDER, null, null, center, radius, height, null);
+        regions.put(name, data);
+        return data;
     }
 
-    public BlurpRegion polygon(String name, List<Location> points) {
+    public RegionData polygon(String name, List<Location> points) {
         if (points.isEmpty() || points.stream().map(loc -> loc.getWorld().getName()).distinct().count() > 1)
             throw new IllegalArgumentException("All polygon points must be in the same world.");
-        regions.put(name, new RegionData(RegionType.POLYGON, null, null, null, 0, 0, points));
-        return this;
+        RegionData data = new RegionData(RegionType.POLYGON, null, null, null, 0, 0, points);
+        regions.put(name, data);
+        return data;
     }
 
     public boolean isInRegion(String region, Location loc) {
@@ -237,6 +241,10 @@ public class BlurpRegion {
         }
         return found;
     }
+
+    // public BlurpRegion onEnter() {
+    //     return this;
+    // }
 
     public void remove(String name) {
         regions.remove(name);

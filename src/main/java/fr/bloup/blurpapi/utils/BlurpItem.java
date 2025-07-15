@@ -84,7 +84,7 @@ public class BlurpItem {
         if (meta == null) return item;
 
         if (name != null) meta.setDisplayName(name);
-        if (!lore.isEmpty()) meta.setLore(lore);
+        if (!(lore != null &&lore.isEmpty())) meta.setLore(lore);
         meta.setUnbreakable(unbreakable);
         meta.addItemFlags(flags.toArray(new ItemFlag[0]));
 
@@ -96,7 +96,7 @@ public class BlurpItem {
             item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
         }
 
-        if (glow && enchantments.isEmpty()) {
+        if (glow && (enchantments != null && enchantments.isEmpty())) {
             item.addUnsafeEnchantment(Enchantment.CHANNELING, 1);
             meta = item.getItemMeta();
             if (meta != null) {
