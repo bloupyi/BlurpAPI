@@ -92,11 +92,13 @@ public class BlurpItem {
 
         item.setItemMeta(meta);
 
-        for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
-            item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+        if (enchantments != null) {
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                if (entry != null) item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
+            }
         }
 
-        if (glow && (enchantments != null && enchantments.isEmpty())) {
+        if (glow && enchantments.isEmpty()) {
             item.addUnsafeEnchantment(Enchantment.CHANNELING, 1);
             meta = item.getItemMeta();
             if (meta != null) {
