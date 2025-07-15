@@ -11,8 +11,8 @@ import java.util.*;
 public class BlurpItem {
     private Material material;
     private String name;
-    private List<String> lore;
-    private Map<Enchantment, Integer> enchantments;
+    private List<String> lore = new ArrayList<>();
+    private Map<Enchantment, Integer> enchantments = new HashMap<>();
     private Set<ItemFlag> flags = new HashSet<>();
     private boolean unbreakable = false;
     private boolean glow = false;
