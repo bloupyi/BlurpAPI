@@ -1,11 +1,13 @@
-package fr.bloup.blurpapi.utils;
+package fr.bloup.blurpapi.regions;
 
+import lombok.Setter;
 import org.bukkit.Location;
 
 import java.util.*;
 
 public class BlurpRegion {
     private final Map<String, RegionData> regions = new HashMap<>();
+
 
     public enum RegionType {
         CUBOID, SPHERE, CYLINDER, POLYGON
@@ -19,6 +21,8 @@ public class BlurpRegion {
         public final Location center;
         public final int radius;
         public final int height;
+        @Setter private Runnable enterTask = () -> {};
+        @Setter private Runnable leaveTask = () -> {};
 
         public RegionData(RegionType type, Location loc1, Location loc2, Location center, int radius, int height, List<Location> polygonPoints) {
             this.type = type;
@@ -29,6 +33,8 @@ public class BlurpRegion {
             this.height = height;
             this.polygonPoints = polygonPoints;
         }
+
+
     }
 
     public RegionData cuboid(String name, Location loc1, Location loc2) {
@@ -242,9 +248,27 @@ public class BlurpRegion {
         return found;
     }
 
-    // public BlurpRegion onEnter() {
-    //     return this;
-    // }
+    public BlurpRegion onEnter(String region, Runnable task) {
+        RegionData data = regions.get(region);
+        data.setEnterTask(task);
+        return this;
+    }
+
+    public BlurpRegion onLeave(String region, Runnable task) {
+        RegionData data = regions.get(region);
+        data.setLeaveTask(task);
+        return this;
+    }
+
+    public void triggerEnter(String region) {
+        RegionData data = regions.get(region);
+        data.enterTask.run();
+    }
+
+    public void triggerLeave(String region) {
+        RegionData data = regions.get(region);
+        data.leaveTask.run();
+    }
 
     public void remove(String name) {
         regions.remove(name);
