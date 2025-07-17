@@ -19,23 +19,22 @@ public class BlurpItem {
     private Integer customModelData = null;
 
     public BlurpItem from(ItemStack item) {
-        BlurpItem blurp = new BlurpItem();
-        blurp.material = item.getType();
+        this.material = item.getType();
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) return blurp;
+        if (meta == null) return this;
 
-        if (meta.hasDisplayName()) blurp.name = meta.getDisplayName();
-        if (meta.hasLore()) blurp.lore = new ArrayList<>(meta.getLore());
+        if (meta.hasDisplayName()) this.name = meta.getDisplayName();
+        if (meta.hasLore()) this.lore = new ArrayList<>(meta.getLore());
 
-        blurp.enchantments = new HashMap<>(item.getEnchantments());
+        this.enchantments = new HashMap<>(item.getEnchantments());
 
-        blurp.flags = meta.getItemFlags();
-        blurp.unbreakable = meta.isUnbreakable();
+        this.flags = meta.getItemFlags();
+        this.unbreakable = meta.isUnbreakable();
 
-        if (meta.hasCustomModelData()) blurp.customModelData = meta.getCustomModelData();
+        if (meta.hasCustomModelData()) this.customModelData = meta.getCustomModelData();
 
-        return blurp;
+        return this;
     }
 
     public BlurpItem material(Material material) {
