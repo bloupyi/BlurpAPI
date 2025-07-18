@@ -8,7 +8,6 @@ import java.util.*;
 public class BlurpRegion {
     private final Map<String, RegionData> regions = new HashMap<>();
 
-
     public enum RegionType {
         CUBOID, SPHERE, CYLINDER, POLYGON
     }

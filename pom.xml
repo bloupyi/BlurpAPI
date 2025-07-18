@@ -6,7 +6,7 @@
 
     <groupId>fr.bloup</groupId>
     <artifactId>blurpapi</artifactId>
-    <version>1.0.9</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>BlurpAPI</name>
@@ -41,6 +41,13 @@
         </plugins>
     </build>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <distributionManagement>
         <repository>
             <id>github</id>
@@ -71,6 +78,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.30</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
