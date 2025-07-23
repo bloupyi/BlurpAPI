@@ -12,7 +12,7 @@ public class BlurpRegion {
         CUBOID, SPHERE, CYLINDER, POLYGON
     }
 
-    private class RegionData {
+    public static class RegionData {
         public final RegionType type;
         public final List<Location> polygonPoints;
         public final Location loc1;
@@ -43,7 +43,7 @@ public class BlurpRegion {
     }
 
     public RegionData sphere(String name, Location center, int radius) {
-        RegionData data =new RegionData(RegionType.SPHERE, null, null, center, radius, 0, null);
+        RegionData data = new RegionData(RegionType.SPHERE, null, null, center, radius, 0, null);
         regions.put(name, data);
         return data;
     }

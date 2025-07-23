@@ -26,11 +26,18 @@ public class BlurpSubTickEngine {
     private BiConsumer<Player, Object> packetHandler;
     private boolean running = false;
 
-    public void start(BiConsumer<Player, Object> handler) {
+    public interface SubTickHandler {
+        void handle(Player player, Object packet, long timestamp);
+    }
+
+    public void start(SubTickHandler handler) {
         if (running) return;
         running = true;
 
-        this.packetHandler = handler;
+        this.packetHandler = (player, packet) -> {
+            long timestamp = System.nanoTime();
+            handler.handle(player, packet, timestamp);
+        };
 
         // Process queue every tick
         Bukkit.getScheduler().runTaskTimer(BlurpAPI.getPlugin(), this::processAll, 1L, 1L);
