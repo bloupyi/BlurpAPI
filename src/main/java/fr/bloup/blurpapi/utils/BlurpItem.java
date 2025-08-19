@@ -52,6 +52,11 @@ public class BlurpItem {
         return this;
     }
 
+    public BlurpItem addLore(List<String> lines) {
+        this.lore.addAll(lines);
+        return this;
+    }
+
     public BlurpItem addEnchant(Enchantment enchantment, int level) {
         this.enchantments.put(enchantment, level);
         return this;
