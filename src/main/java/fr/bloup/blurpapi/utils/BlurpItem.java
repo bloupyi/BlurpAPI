@@ -10,6 +10,7 @@ import java.util.*;
 
 public class BlurpItem {
     private Material material;
+    private int amount = 1;
     private String name;
     private List<String> lore = new ArrayList<>();
     private Map<Enchantment, Integer> enchantments = new HashMap<>();
@@ -20,6 +21,7 @@ public class BlurpItem {
 
     public BlurpItem from(ItemStack item) {
         this.material = item.getType();
+        this.amount = item.getAmount();
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return this;
@@ -82,8 +84,13 @@ public class BlurpItem {
         return this;
     }
 
+    public BlurpItem amount(int amount) {
+        this.amount = Math.max(1, amount);
+        return this;
+    }
+
     public ItemStack build() {
-        ItemStack item = new ItemStack(material);
+        ItemStack item = new ItemStack(material, amount);
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
 
