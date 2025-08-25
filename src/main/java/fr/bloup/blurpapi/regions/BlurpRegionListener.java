@@ -16,7 +16,7 @@ public class BlurpRegionListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Location from = event.getFrom();
         Location to = event.getTo();
-        if (to == null || from.getWorld() != to.getWorld()) return;
+        if (from == null || to == null) return;
 
         List<String> wasIn = blurpRegion.regionsAt(from);
         List<String> isIn = blurpRegion.regionsAt(to);
