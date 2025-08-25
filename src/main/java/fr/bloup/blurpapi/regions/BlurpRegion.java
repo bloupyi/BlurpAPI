@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import java.util.*;
 
 public class BlurpRegion {
-    private final Map<String, RegionData> regions = new HashMap<>();
+    private static final Map<String, RegionData> regions = new HashMap<>();
 
     public enum RegionType {
         CUBOID, SPHERE, CYLINDER, POLYGON
