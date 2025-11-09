@@ -13,6 +13,7 @@ public class BlurpRegion {
     }
 
     public static class RegionData {
+        public final String name;
         public final RegionType type;
         public final List<Location> polygonPoints;
         public final Location loc1;
@@ -23,7 +24,8 @@ public class BlurpRegion {
         @Setter private Runnable enterTask = () -> {};
         @Setter private Runnable leaveTask = () -> {};
 
-        public RegionData(RegionType type, Location loc1, Location loc2, Location center, int radius, int height, List<Location> polygonPoints) {
+        public RegionData(String name, RegionType type, Location loc1, Location loc2, Location center, int radius, int height, List<Location> polygonPoints) {
+            this.name = name;
             this.type = type;
             this.loc1 = loc1;
             this.loc2 = loc2;
@@ -43,19 +45,19 @@ public class BlurpRegion {
     }
 
     public RegionData cuboid(String name, Location loc1, Location loc2) {
-        RegionData data = new RegionData(RegionType.CUBOID, loc1, loc2, null, 0, 0, null);
+        RegionData data = new RegionData(name, RegionType.CUBOID, loc1, loc2, null, 0, 0, null);
         regions.put(name, data);
         return data;
     }
 
     public RegionData sphere(String name, Location center, int radius) {
-        RegionData data = new RegionData(RegionType.SPHERE, null, null, center, radius, 0, null);
+        RegionData data = new RegionData(name, RegionType.SPHERE, null, null, center, radius, 0, null);
         regions.put(name, data);
         return data;
     }
 
     public RegionData cylinder(String name, Location center, int radius, int height) {
-        RegionData data = new RegionData(RegionType.CYLINDER, null, null, center, radius, height, null);
+        RegionData data = new RegionData(name, RegionType.CYLINDER, null, null, center, radius, height, null);
         regions.put(name, data);
         return data;
     }
@@ -63,7 +65,7 @@ public class BlurpRegion {
     public RegionData polygon(String name, List<Location> points) {
         if (points.isEmpty() || points.stream().map(loc -> loc.getWorld().getName()).distinct().count() > 1)
             throw new IllegalArgumentException("All polygon points must be in the same world.");
-        RegionData data = new RegionData(RegionType.POLYGON, null, null, null, 0, 0, points);
+        RegionData data = new RegionData(name, RegionType.POLYGON, null, null, null, 0, 0, points);
         regions.put(name, data);
         return data;
     }
