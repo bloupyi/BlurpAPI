@@ -273,6 +273,14 @@ public class BlurpRegion {
         regions.remove(name);
     }
 
+    public void remove(RegionData regionData) {
+        for (Map.Entry<String, RegionData> entry : regions.entrySet()) {
+            if (entry.getValue().equals(regionData)) {
+                regions.remove(entry.getKey());
+            }
+        }
+    }
+
     public void clear() {
         regions.clear();
     }
