@@ -1,5 +1,6 @@
 package fr.bloup.blurpapi.regions;
 
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
 
@@ -12,6 +13,7 @@ public class BlurpRegion {
         CUBOID, SPHERE, CYLINDER, POLYGON
     }
 
+    @Getter
     public static class RegionData {
         public final String name;
         public final RegionType type;
