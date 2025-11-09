@@ -33,7 +33,13 @@ public class BlurpRegion {
             this.polygonPoints = polygonPoints;
         }
 
-
+        public void remove() {
+            for (Map.Entry<String, RegionData> entry : regions.entrySet()) {
+                if (entry.getValue().equals(this)) {
+                    regions.remove(entry.getKey());
+                }
+            }
+        }
     }
 
     public RegionData cuboid(String name, Location loc1, Location loc2) {
