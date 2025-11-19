@@ -1,6 +1,6 @@
 # BlurpAPI
 
-[📖 View the full documentation on GitBook](https://blurp-1.gitbook.io/blurp-docs)
+[📖 View the full documentation on GitBook](https://blurp-1.gitbook.io/blurpapi-docs)
 
 BlurpAPI is a utility library for Minecraft plugins, providing useful features such as cooldown management, sound handling, item creation, raycasting, scheduling, and region utilities.
 
