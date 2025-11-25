@@ -3,6 +3,8 @@ package fr.bloup.blurpapi.utils;
 import fr.bloup.blurpapi.BlurpAPI;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.function.Consumer;
+
 public class BlurpScheduler {
     private int afterTicks = 0;
     private int repeatTimes = 0;
@@ -38,12 +40,16 @@ public class BlurpScheduler {
     }
 
     public BlurpScheduler run(Runnable task) {
+        return run(scheduler -> task.run());
+    }
+
+    public BlurpScheduler run(Consumer<BlurpScheduler> task) {
         if (repeatTimes <= 0) {
             if (period > 0) {
                 runnable = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        task.run();
+                        task.accept(BlurpScheduler.this);
                     }
                 };
                 if (async) {
@@ -55,7 +61,7 @@ public class BlurpScheduler {
                 runnable = new BukkitRunnable() {
                     @Override
                     public void run() {
-                        task.run();
+                        task.accept(BlurpScheduler.this);
                         if (onComplete != null) onComplete.run();
                     }
                 };
@@ -75,7 +81,7 @@ public class BlurpScheduler {
                         if (onComplete != null) onComplete.run();
                         return;
                     }
-                    task.run();
+                    task.accept(BlurpScheduler.this);
                 }
             };
             if (async) {
@@ -87,7 +93,7 @@ public class BlurpScheduler {
             runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    task.run();
+                    task.accept(BlurpScheduler.this);
                     if (onComplete != null) onComplete.run();
                 }
             };
