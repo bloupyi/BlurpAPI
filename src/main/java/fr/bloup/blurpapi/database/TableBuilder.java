@@ -69,7 +69,7 @@ public class TableBuilder {
         if (type == Float.class || type == float.class) return "FLOAT";
         if (type == Boolean.class || type == boolean.class) return "BOOLEAN";
         if (type == UUID.class) return "CHAR(36)";
-        if (type == byte[].class) return "BLOB";
+        if (type == byte[].class) return "LONGBLOB";
         if (type == Date.class) return "DATE";
         if (type == Time.class) return "TIME";
         if (type == Timestamp.class) return "TIMESTAMP";
