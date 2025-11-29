@@ -11,7 +11,6 @@ public final class BlurpAPI extends JavaPlugin {
         if (pluginInstance == null) {
             pluginInstance = plugin;
         }
-
         pluginInstance.getServer().getPluginManager().registerEvents(new BlurpRegionListener(new BlurpRegion()), pluginInstance);
     }
 
