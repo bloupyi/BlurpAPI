@@ -90,9 +90,10 @@ public class DBQuery {
     /**
      * Supprime les enregistrements selon JOIN/WHERE/ORDER/LIMIT/OFFSET.
      */
-    public void delete() throws Exception {
+    public boolean delete() throws Exception {
         String sql = "DELETE FROM " + table + buildJoin() + buildClauses();
-        db.executeUpdate(sql, whereVals.toArray());
+        int affected = db.executeUpdate(sql, whereVals.toArray());
+        return affected > 0;
     }
 
     /* -------------------- SETTERS -------------------- */

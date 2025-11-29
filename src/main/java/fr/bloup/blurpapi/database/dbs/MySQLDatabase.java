@@ -35,11 +35,13 @@ public class MySQLDatabase implements Database {
     }
 
     @Override
-    public void executeUpdate(String sql, Object... params) throws Exception {
-        PreparedStatement ps = connection.prepareStatement(sql);
-        for (int i = 0; i < params.length; i++) ps.setObject(i + 1, params[i]);
-        ps.executeUpdate();
-        ps.close();
+    public int executeUpdate(String sql, Object... params) throws Exception {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+            return ps.executeUpdate();
+        }
     }
 
     @Override

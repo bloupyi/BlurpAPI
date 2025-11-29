@@ -41,12 +41,12 @@ public class MariaDBDatabase implements Database {
     }
 
     @Override
-    public void executeUpdate(String sql, Object... params) throws Exception {
+    public int executeUpdate(String sql, Object... params) throws Exception {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
             }
-            ps.executeUpdate();
+            return ps.executeUpdate();
         }
     }
 

@@ -9,7 +9,7 @@ public interface Database {
 
     boolean isConnected() throws Exception;
 
-    void executeUpdate(String sql, Object... params) throws Exception;
+    int executeUpdate(String sql, Object... params) throws Exception;
 
     <T> T executeQuery(String sql, ResultSetHandler<T> handler, Object... params) throws Exception;
 
