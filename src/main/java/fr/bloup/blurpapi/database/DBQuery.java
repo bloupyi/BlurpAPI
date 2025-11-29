@@ -3,9 +3,8 @@ package fr.bloup.blurpapi.database;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -98,7 +97,7 @@ public class DBQuery {
 
     /* -------------------- SETTERS -------------------- */
 
-    public void set(String column, Object value) throws Exception {
+    public DBQuery set(String column, Object value) throws Exception {
         String sql = "UPDATE " + table +
                 " SET " + column + "=? " +
                 buildClauses();
@@ -108,6 +107,40 @@ public class DBQuery {
             params[i + 1] = whereVals.get(i);
         }
         db.executeUpdate(sql, params);
+        return this;
+    }
+
+    public DBQuery insert(Map<String, Object> values) throws Exception {
+        if (values.isEmpty()) {
+            throw new IllegalArgumentException("insert values cannot be empty");
+        }
+        String cols = String.join(", ", values.keySet());
+        String placeholders = values.keySet().stream()
+                .map(k -> "?")
+                .collect(Collectors.joining(", "));
+        String sql = "INSERT INTO " + table + " (" + cols + ") VALUES (" + placeholders + ")";
+        db.executeUpdate(sql, values.values().toArray());
+        return this;
+    }
+
+    public DBQuery upsertOnDuplicateKey(Map<String, Object> values, String... updateColumns) throws Exception {
+        if (values.isEmpty() || updateColumns.length == 0) {
+            throw new IllegalArgumentException("upsert requires at least one column/value and one updateColumn");
+        }
+        // INSERT part
+        String cols = String.join(", ", values.keySet());
+        String placeholders = values.keySet().stream()
+                .map(k -> "?")
+                .collect(Collectors.joining(", "));
+        // UPDATE part
+        String updateClause = Arrays.stream(updateColumns)
+                .map(col -> col + "=VALUES(" + col + ")")
+                .collect(Collectors.joining(", "));
+        String sql = "INSERT INTO " + table +
+                " (" + cols + ") VALUES (" + placeholders + ")" +
+                " ON DUPLICATE KEY UPDATE " + updateClause;
+        db.executeUpdate(sql, values.values().toArray());
+        return this;
     }
 
     /* -------------------- GETTERS -------------------- */
