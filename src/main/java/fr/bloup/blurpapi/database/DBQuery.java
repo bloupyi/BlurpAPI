@@ -218,6 +218,14 @@ public class DBQuery {
         );
     }
 
+    public byte[] getBytes(String column) throws Exception {
+        String sql = "SELECT " + column + " FROM " + table + buildClauses();
+        return db.executeQuery(sql, rs -> {
+            if (!rs.next()) return null;
+            return rs.getBytes(column);
+        }, whereVals.toArray());
+    }
+
     public BigDecimal getBigDecimal(String column) throws Exception {
         String sql = "SELECT " + column + " FROM " + table + buildClauses();
         return db.executeQuery(
