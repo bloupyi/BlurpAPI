@@ -36,7 +36,7 @@ public class DBQuery {
         whereCols.clear();
         whereVals.clear();
         whereCols.add(column);
-        whereVals.add(value);
+        whereVals.add(value.toString());
         return this;
     }
 
@@ -45,7 +45,7 @@ public class DBQuery {
      */
     public DBQuery andWhere(String column, Object value) {
         whereCols.add(column);
-        whereVals.add(value);
+        whereVals.add(value.toString());
         return this;
     }
 
