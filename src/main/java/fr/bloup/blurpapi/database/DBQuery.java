@@ -98,7 +98,7 @@ public class DBQuery {
 
     /* -------------------- SETTERS -------------------- */
 
-    public DBQuery set(String column, Object value) throws Exception {
+    public Boolean set(String column, Object value) throws Exception {
         String sql = "UPDATE " + table +
                 " SET " + column + "=? " +
                 buildClauses();
@@ -107,11 +107,11 @@ public class DBQuery {
         for (int i = 0; i < whereVals.size(); i++) {
             params[i + 1] = whereVals.get(i);
         }
-        db.executeUpdate(sql, params);
-        return this;
+        int affected = db.executeUpdate(sql, params);
+        return affected > 0;
     }
 
-    public DBQuery insert(Map<String, Object> values) throws Exception {
+    public Boolean insert(Map<String, Object> values) throws Exception {
         if (values.isEmpty()) {
             throw new IllegalArgumentException("insert values cannot be empty");
         }
@@ -120,11 +120,11 @@ public class DBQuery {
                 .map(k -> "?")
                 .collect(Collectors.joining(", "));
         String sql = "INSERT INTO " + table + " (" + cols + ") VALUES (" + placeholders + ")";
-        db.executeUpdate(sql, values.values().toArray());
-        return this;
+        int affected = db.executeUpdate(sql, values.values().toArray());
+        return affected > 0;
     }
 
-    public DBQuery upsertOnDuplicateKey(Map<String, Object> values, String... updateColumns) throws Exception {
+    public Boolean upsertOnDuplicateKey(Map<String, Object> values, String... updateColumns) throws Exception {
         if (values.isEmpty() || updateColumns.length == 0) {
             throw new IllegalArgumentException("upsert requires at least one column/value and one updateColumn");
         }
@@ -140,8 +140,8 @@ public class DBQuery {
         String sql = "INSERT INTO " + table +
                 " (" + cols + ") VALUES (" + placeholders + ")" +
                 " ON DUPLICATE KEY UPDATE " + updateClause;
-        db.executeUpdate(sql, values.values().toArray());
-        return this;
+        int affected = db.executeUpdate(sql, values.values().toArray());
+        return affected > 0;
     }
 
     /* -------------------- GETTERS -------------------- */
