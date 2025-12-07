@@ -13,6 +13,7 @@ public class DBQuery {
     private final String table;
     private final List<String> joins = new ArrayList<>();
     private final List<String> whereCols = new ArrayList<>();
+    private final List<String> whereOps = new ArrayList<>();
     private final List<Object> whereVals = new ArrayList<>();
 
     private String orderByClause = "";
@@ -29,23 +30,37 @@ public class DBQuery {
         return this;
     }
 
-    /**
-     * Ajoute une condition WHERE column = value (chaînée avec AND).
-     */
     public DBQuery where(String column, Object value) {
         whereCols.clear();
+        whereOps.clear();
         whereVals.clear();
         whereCols.add(column);
+        whereOps.add("=");
         whereVals.add(value.toString());
         return this;
     }
 
-    /**
-     * Ajoute une condition AND column = value.
-     */
     public DBQuery andWhere(String column, Object value) {
         whereCols.add(column);
+        whereOps.add("=");
         whereVals.add(value.toString());
+        return this;
+    }
+
+    public DBQuery whereLike(String column, Object value) {
+        whereCols.clear();
+        whereOps.clear();
+        whereVals.clear();
+        whereCols.add(column);
+        whereOps.add("LIKE");
+        whereVals.add(value);
+        return this;
+    }
+
+    public DBQuery andWhereLike(String column, Object value) {
+        whereCols.add(column);
+        whereOps.add("LIKE");
+        whereVals.add(value);
         return this;
     }
 
@@ -72,7 +87,7 @@ public class DBQuery {
         if (whereCols.isEmpty()) return "";
         return "WHERE " +
                 IntStream.range(0, whereCols.size())
-                        .mapToObj(i -> whereCols.get(i) + "=?")
+                        .mapToObj(i -> whereCols.get(i) + " " + whereOps.get(i) + " ?")
                         .collect(Collectors.joining(" AND "));
     }
 
@@ -87,9 +102,7 @@ public class DBQuery {
     }
 
     /* ------- DELETE ------- */
-    /**
-     * Supprime les enregistrements selon JOIN/WHERE/ORDER/LIMIT/OFFSET.
-     */
+
     public boolean delete() throws Exception {
         String sql = "DELETE FROM " + table + buildJoin() + buildClauses();
         int affected = db.executeUpdate(sql, whereVals.toArray());
@@ -128,12 +141,10 @@ public class DBQuery {
         if (values.isEmpty() || updateColumns.length == 0) {
             throw new IllegalArgumentException("upsert requires at least one column/value and one updateColumn");
         }
-        // INSERT part
         String cols = String.join(", ", values.keySet());
         String placeholders = values.keySet().stream()
                 .map(k -> "?")
                 .collect(Collectors.joining(", "));
-        // UPDATE part
         String updateClause = Arrays.stream(updateColumns)
                 .map(col -> col + "=VALUES(" + col + ")")
                 .collect(Collectors.joining(", "));
