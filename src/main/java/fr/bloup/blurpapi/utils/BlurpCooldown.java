@@ -25,7 +25,7 @@ public class BlurpCooldown {
             onStart.run();
         }
         if (onComplete != null) {
-            new BlurpScheduler().after(cooldownTicks).run(() -> onComplete.run());
+            new BlurpScheduler().after(cooldownTicks).repeat(1).run(() -> onComplete.run());
         }
     }
 }
