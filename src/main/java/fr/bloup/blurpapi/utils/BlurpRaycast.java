@@ -119,7 +119,7 @@ public class BlurpRaycast {
 
     @Getter
     @RequiredArgsConstructor
-    private static class RaycastResult {
+    public static class RaycastResult {
         private final Location hitLocation;
         private final Entity hitEntity;
         private final Block hitBlock;
