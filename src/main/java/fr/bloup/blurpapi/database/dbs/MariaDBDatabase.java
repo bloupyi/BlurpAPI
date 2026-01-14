@@ -13,10 +13,11 @@ public class MariaDBDatabase implements Database {
 
     public MariaDBDatabase(String host, int port, String database,
                            String user, String pass,
-                           boolean useSSL, boolean allowPublicKeyRetrieval) {
+                           boolean useSSL, boolean allowPublicKeyRetrieval, boolean autoReconnect) {
         this.url = "jdbc:mariadb://" + host + ":" + port + "/" + database
                 + "?useSSL=" + useSSL
-                + "&allowPublicKeyRetrieval=" + allowPublicKeyRetrieval;
+                + "&allowPublicKeyRetrieval=" + allowPublicKeyRetrieval
+                + "&autoReconnect=" + autoReconnect;
         this.user = user;
         this.pass = pass;
     }
