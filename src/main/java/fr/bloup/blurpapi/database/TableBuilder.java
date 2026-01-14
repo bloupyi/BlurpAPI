@@ -1,5 +1,7 @@
 package fr.bloup.blurpapi.database;
 
+import com.google.gson.Gson;
+
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -77,6 +79,7 @@ public class TableBuilder {
         if (type == Short.class || type == short.class) return "SMALLINT";
         if (type == Byte.class || type == byte.class) return "TINYINT";
         if (type == Character.class || type == char.class) return "CHAR";
+        if (type == Gson.class) return "JSON";
         return "TEXT"; // fallback
     }
 }
