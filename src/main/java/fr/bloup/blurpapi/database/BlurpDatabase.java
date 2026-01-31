@@ -14,6 +14,8 @@ public class BlurpDatabase {
     private boolean useSSL = false;
     private boolean allowPublicKeyRetrieval = false;
     private boolean autoReconnect = false;
+    private boolean autoReconnectForPools = false;
+
 
     public BlurpDatabase type(DatabaseType type) {
         this.type = type;
@@ -65,10 +67,15 @@ public class BlurpDatabase {
         return this;
     }
 
+    public BlurpDatabase autoReconnectForPools(boolean autoReconnectForPools) {
+        this.autoReconnectForPools = autoReconnectForPools;
+        return this;
+    }
+
     public Database build() {
         switch (type) {
             case MYSQL:
-                return new MySQLDatabase(host, port, databaseName, user == null ? "root" : user, pass == null ? "" : pass, useSSL, allowPublicKeyRetrieval, autoReconnect);
+                return new MySQLDatabase(host, port, databaseName, user == null ? "root" : user, pass == null ? "" : pass, useSSL, allowPublicKeyRetrieval, autoReconnect, autoReconnectForPools);
             case SQLITE:
                 return new SQLiteDatabase(filePath);
             case MARIADB:
