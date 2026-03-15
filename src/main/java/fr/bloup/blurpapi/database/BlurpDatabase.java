@@ -77,7 +77,7 @@ public class BlurpDatabase {
         }
         switch (type) {
             case MYSQL:
-                return new MySQLDatabase(host, port, databaseName, user == null ? "root" : user, pass == null ? "" : pass, useSSL, allowPublicKeyRetrieval, autoReconnect);
+                return new MySQLDatabase(host, port, databaseName, user == null ? "root" : user, pass == null ? "" : pass, useSSL, allowPublicKeyRetrieval, autoReconnect, autoReconnect);
             case SQLITE:
                 return new SQLiteDatabase(filePath);
             case MARIADB:
