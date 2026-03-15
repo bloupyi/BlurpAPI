@@ -1,5 +1,6 @@
 package fr.bloup.blurpapi.utils;
 
+import lombok.SneakyThrows;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -70,6 +71,7 @@ public class BlurpSound {
         return this;
     }
 
+    @SneakyThrows
     public BlurpSound play(Location location) {
         Runnable playTask = () -> {
             for (Player player : location.getWorld().getPlayers()) {
