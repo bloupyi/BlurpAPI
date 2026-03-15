@@ -12,11 +12,12 @@ public class MySQLDatabase implements Database {
 
     private Connection connection;
 
-    public MySQLDatabase(String host, int port, String database, String user, String pass, boolean useSSL, boolean allowPublicKeyRetrieval, boolean autoReconnect) {
+    public MySQLDatabase(String host, int port, String database, String user, String pass, boolean useSSL, boolean allowPublicKeyRetrieval, boolean autoReconnect, boolean autoReconnectForPools) {
         this.url = "jdbc:mysql://" + host + ":" + port + "/" + database
                 + "?useSSL="+useSSL
                 + "&allowPublicKeyRetrieval="+allowPublicKeyRetrieval
-                + "&autoReconnect=" + autoReconnect;
+                + "&autoReconnect=" + autoReconnect
+                + "&autoReconnectForPools=" + autoReconnectForPools;
         this.user = user;
         this.pass = pass;
     }
