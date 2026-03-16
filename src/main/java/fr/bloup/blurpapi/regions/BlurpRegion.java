@@ -3,6 +3,7 @@ package fr.bloup.blurpapi.regions;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ public class BlurpRegion {
     @Getter
     public static class RegionData {
         public final String name;
-        private final String world;
+        private final World world;
         public final RegionType type;
         public final List<Location> polygonPoints;
         public final Location loc1;
@@ -27,7 +28,7 @@ public class BlurpRegion {
         @Setter private Runnable enterTask = () -> {};
         @Setter private Runnable leaveTask = () -> {};
 
-        public RegionData(String name, RegionType type, Location loc1, Location loc2, Location center, int radius, int height, List<Location> polygonPoints, String world) {
+        public RegionData(String name, RegionType type, Location loc1, Location loc2, Location center, int radius, int height, List<Location> polygonPoints, World world) {
             this.name = name;
             this.type = type;
             this.loc1 = loc1;
@@ -49,27 +50,29 @@ public class BlurpRegion {
 
     }
 
-    public RegionData cuboid(String name, Location loc1, Location loc2, String world) {
+    public RegionData cuboid(String name, Location loc1, Location loc2, World world) {
         RegionData data = new RegionData(name, RegionType.CUBOID, loc1, loc2, null, 0, 0, null, world);
         regions.put(name, data);
         return data;
     }
 
-    public RegionData sphere(String name, Location center, int radius, String world) {
+    public RegionData sphere(String name, Location center, int radius, World world) {
         RegionData data = new RegionData(name, RegionType.SPHERE, null, null, center, radius, 0, null, world);
         regions.put(name, data);
         return data;
     }
 
-    public RegionData cylinder(String name, Location center, int radius, int height, String world) {
+    public RegionData cylinder(String name, Location center, int radius, int height, World world) {
         RegionData data = new RegionData(name, RegionType.CYLINDER, null, null, center, radius, height, null, world);
         regions.put(name, data);
         return data;
     }
 
-    public RegionData polygon(String name, List<Location> points, String world) {
+    public RegionData polygon(String name, List<Location> points, World world) {
         if (points.isEmpty() || points.stream().map(loc -> loc.getWorld().getName()).distinct().count() > 1)
             throw new IllegalArgumentException("All polygon points must be in the same world.");
+        if (world != null && points.get(0).getWorld() != null && !world.equals(points.get(0).getWorld()))
+            throw new IllegalArgumentException("Polygon world must match points world.");
         RegionData data = new RegionData(name, RegionType.POLYGON, null, null, null, 0, 0, points, world);
         regions.put(name, data);
         return data;
@@ -78,6 +81,8 @@ public class BlurpRegion {
     public boolean isInRegion(String region, Location loc) {
         RegionData data = regions.get(region);
         if (data == null) return false;
+
+        if (loc.getWorld() == null || data.world == null || !loc.getWorld().equals(data.world)) return false;
 
         Location checkLoc = loc.getBlock().getLocation();
 
@@ -253,6 +258,9 @@ public class BlurpRegion {
     public List<String> regionsAt(Location loc) {
         List<String> found = new ArrayList<>();
         for (Map.Entry<String, RegionData> entry : regions.entrySet()) {
+            if (loc.getWorld() == null || entry.getValue().world == null || !loc.getWorld().equals(entry.getValue().world)) {
+                continue;
+            }
             if (isInRegion(entry.getKey(), loc)) {
                 found.add(entry.getKey());
             }

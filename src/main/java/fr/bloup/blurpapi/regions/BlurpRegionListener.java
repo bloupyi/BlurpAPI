@@ -23,9 +23,6 @@ public class BlurpRegionListener implements Listener {
         Location to = event.getTo();
         if (from == null || to == null) return;
 
-        // Check if the worlds are different
-        if (!from.getWorld().equals(to.getWorld())) return;
-
         List<String> wasIn = blurpRegion.regionsAt(from);
         List<String> isIn = blurpRegion.regionsAt(to);
 
