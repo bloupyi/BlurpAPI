@@ -318,7 +318,7 @@ public class BlurpParticle {
             return data;
         }
 
-        if (particle == Particle.REDSTONE) {
+        if (particle == Particle.DUST) {
             Color c = colorForProgress(t);
             if (c == null) {
                 return null;
