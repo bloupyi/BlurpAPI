@@ -1,8 +1,10 @@
 package fr.bloup.blurpapi.utils;
 
 import fr.bloup.blurpapi.BlurpAPI;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class BlurpScheduler {
@@ -11,6 +13,8 @@ public class BlurpScheduler {
     private int period = 1;
     private boolean async = false;
     private Runnable onComplete = null;
+
+    private final AtomicBoolean completed = new AtomicBoolean(false);
 
     private BukkitRunnable runnable = null;
 
@@ -50,6 +54,7 @@ public class BlurpScheduler {
                     @Override
                     public void run() {
                         task.accept(BlurpScheduler.this);
+                        completeOnce();
                     }
                 };
                 if (async) {
@@ -62,7 +67,7 @@ public class BlurpScheduler {
                     @Override
                     public void run() {
                         task.accept(BlurpScheduler.this);
-                        if (onComplete != null) onComplete.run();
+                        completeOnce();
                     }
                 };
                 if (async) {
@@ -78,7 +83,7 @@ public class BlurpScheduler {
                 public void run() {
                     if (counter++ >= repeatTimes) {
                         cancel();
-                        if (onComplete != null) onComplete.run();
+                        completeOnce();
                         return;
                     }
                     task.accept(BlurpScheduler.this);
@@ -94,7 +99,7 @@ public class BlurpScheduler {
                 @Override
                 public void run() {
                     task.accept(BlurpScheduler.this);
-                    if (onComplete != null) onComplete.run();
+                    completeOnce();
                 }
             };
             if (async) {
@@ -109,6 +114,18 @@ public class BlurpScheduler {
     public void cancel() {
         if (runnable != null) {
             runnable.cancel();
+        }
+        completeOnce();
+    }
+
+    private void completeOnce() {
+        if (onComplete == null) return;
+        if (!completed.compareAndSet(false, true)) return;
+
+        if (async) {
+            Bukkit.getScheduler().runTaskAsynchronously(BlurpAPI.getPlugin(), onComplete);
+        } else {
+            Bukkit.getScheduler().runTask(BlurpAPI.getPlugin(), onComplete);
         }
     }
 }
