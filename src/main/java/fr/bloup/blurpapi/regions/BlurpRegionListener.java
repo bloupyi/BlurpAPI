@@ -23,8 +23,8 @@ public class BlurpRegionListener implements Listener {
         Location to = event.getTo();
         if (from == null || to == null) return;
 
-        List<String> wasIn = blurpRegion.regionsAt(from);
-        List<String> isIn = blurpRegion.regionsAt(to);
+        List<String> wasIn = blurpRegion.regionsAt(from, event.getFrom().getWorld());
+        List<String> isIn = blurpRegion.regionsAt(to, event.getFrom().getWorld());
 
         for (String region : isIn) {
             if (!wasIn.contains(region)) {
