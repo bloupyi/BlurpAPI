@@ -2,23 +2,22 @@ package fr.bloup.blurpapi.events.regions;
 
 import fr.bloup.blurpapi.regions.BlurpRegion;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.player.PlayerEvent;
 
-@RequiredArgsConstructor
-public class PlayerEnterRegionEvent extends Event {
+@Getter
+public class PlayerEnterRegionEvent extends PlayerEvent {
     private static final HandlerList handlers = new HandlerList();
-    @Getter private final Player player;
-    @Getter private final BlurpRegion.RegionData regionData;
+    private final BlurpRegion.RegionData regionData;
+
+    public PlayerEnterRegionEvent(Player player, BlurpRegion.RegionData regionData) {
+        super(player);
+        this.regionData = regionData;
+    }
 
     @Override
-    public HandlerList getHandlers() {
-        return handlers;
-    }
+    public HandlerList getHandlers() { return handlers; }
 
-    public static HandlerList getHandlerList() {
-        return handlers;
-    }
+    public static HandlerList getHandlerList() { return handlers; }
 }
