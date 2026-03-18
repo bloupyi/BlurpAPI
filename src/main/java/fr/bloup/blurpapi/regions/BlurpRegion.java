@@ -158,6 +158,86 @@ public class BlurpRegion {
         }
     }
 
+    public boolean isInRegion(String region, Location loc, World world) {
+        RegionData data = regions.get(region);
+        if (data == null) return false;
+
+        if (world == null || data.world == null || !world.equals(data.world)) return false;
+
+        Location checkLoc = loc.getBlock().getLocation();
+
+        switch (data.type) {
+            case CUBOID -> {
+                int x = checkLoc.getBlockX();
+                int y = checkLoc.getBlockY();
+                int z = checkLoc.getBlockZ();
+
+                int minX = Math.min(data.loc1.getBlockX(), data.loc2.getBlockX());
+                int maxX = Math.max(data.loc1.getBlockX(), data.loc2.getBlockX());
+                int minY = Math.min(data.loc1.getBlockY(), data.loc2.getBlockY());
+                int maxY = Math.max(data.loc1.getBlockY(), data.loc2.getBlockY());
+                int minZ = Math.min(data.loc1.getBlockZ(), data.loc2.getBlockZ());
+                int maxZ = Math.max(data.loc1.getBlockZ(), data.loc2.getBlockZ());
+
+                return x >= minX && x <= maxX &&
+                        y >= minY && y <= maxY &&
+                        z >= minZ && z <= maxZ;
+            }
+
+            case SPHERE -> {
+                int dx = checkLoc.getBlockX() - data.center.getBlockX();
+                int dy = checkLoc.getBlockY() - data.center.getBlockY();
+                int dz = checkLoc.getBlockZ() - data.center.getBlockZ();
+                return (dx * dx + dy * dy + dz * dz) <= data.radius * data.radius;
+            }
+
+            case CYLINDER -> {
+                int dx = checkLoc.getBlockX() - data.center.getBlockX();
+                int dz = checkLoc.getBlockZ() - data.center.getBlockZ();
+                int dy = checkLoc.getBlockY() - data.center.getBlockY();
+                boolean inRadius = (dx * dx + dz * dz) <= data.radius * data.radius;
+                boolean inHeight = dy >= 0 && dy < data.height;
+                return inRadius && inHeight;
+            }
+
+            case POLYGON -> {
+                List<Location> pts = data.polygonPoints;
+                if (pts.size() < 4) return false;
+                Location test = checkLoc;
+                int minX = pts.stream().mapToInt(Location::getBlockX).min().orElse(0);
+                int maxX = pts.stream().mapToInt(Location::getBlockX).max().orElse(0);
+                int minY = pts.stream().mapToInt(Location::getBlockY).min().orElse(0);
+                int maxY = pts.stream().mapToInt(Location::getBlockY).max().orElse(0);
+                int minZ = pts.stream().mapToInt(Location::getBlockZ).min().orElse(0);
+                int maxZ = pts.stream().mapToInt(Location::getBlockZ).max().orElse(0);
+                if (test.getBlockX() < minX || test.getBlockX() > maxX ||
+                    test.getBlockY() < minY || test.getBlockY() > maxY ||
+                    test.getBlockZ() < minZ || test.getBlockZ() > maxZ) {
+                    return false;
+                }
+                // On compte combien de faces sont traversées par un rayon partant du point
+                // Ici, on simplifie en projetant sur Y et on considère la projection sur chaque face triangulée
+                // Pour une vraie utilisation, il faudrait une structure de faces (triangles)
+                // On va approximer avec un test sur chaque triangle formé par pts[0], pts[i], pts[i+1]
+                int crossings = 0;
+                for (int i = 1; i < pts.size() - 1; i++) {
+                    Location a = pts.get(0);
+                    Location b = pts.get(i);
+                    Location c = pts.get(i + 1);
+                    if (isPointInTriangle3D(test, a, b, c)) {
+                        crossings++;
+                    }
+                }
+                // Si le nombre de croisements est impair, le point est dedans
+                return (crossings % 2) == 1;
+            }
+
+            default -> {
+                return false;
+            }
+        }
+    }
+
     public List<Location> getBlocksInRegion(String region) {
         RegionData data = regions.get(region);
         if (data == null) return Collections.emptyList();
@@ -262,6 +342,19 @@ public class BlurpRegion {
                 continue;
             }
             if (isInRegion(entry.getKey(), loc)) {
+                found.add(entry.getKey());
+            }
+        }
+        return found;
+    }
+
+    public List<String> regionsAt(Location loc, World world) {
+        List<String> found = new ArrayList<>();
+        for (Map.Entry<String, RegionData> entry : regions.entrySet()) {
+            if (world == null || entry.getValue().world == null || !world.equals(entry.getValue().world)) {
+                continue;
+            }
+            if (isInRegion(entry.getKey(), loc, world)) {
                 found.add(entry.getKey());
             }
         }
