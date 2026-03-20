@@ -1,6 +1,7 @@
 package fr.bloup.blurpapi.utils;
 
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +19,8 @@ public class BlurpItem {
     private boolean unbreakable = false;
     private boolean glow = false;
     private Integer customModelData = null;
+    private NamespacedKey itemModelKey = null;
+    private String itemModel = null;
 
     public BlurpItem from(ItemStack item) {
         this.material = item.getType();
@@ -28,6 +31,7 @@ public class BlurpItem {
 
         if (meta.hasDisplayName()) this.name = meta.getDisplayName();
         if (meta.hasLore()) this.lore = new ArrayList<>(meta.getLore());
+        if (meta.hasItemModel()) this.itemModelKey = meta.getItemModel();
 
         this.enchantments = new HashMap<>(item.getEnchantments());
 
@@ -89,6 +93,16 @@ public class BlurpItem {
         return this;
     }
 
+    public BlurpItem setItemModel(String namespace, String model) {
+        this.itemModelKey = new NamespacedKey(namespace, model);
+        this.itemModel = model;
+        return this;
+    }
+
+    public BlurpItem setItemModel(String model) {
+        return setItemModel("minecraft", model);
+    }
+
     public ItemStack build() {
         ItemStack item = new ItemStack(material, amount);
         ItemMeta meta = item.getItemMeta();
@@ -100,6 +114,11 @@ public class BlurpItem {
         meta.addItemFlags(flags.toArray(new ItemFlag[0]));
 
         if (customModelData != null) meta.setCustomModelData(customModelData);
+
+        // Appliquer le modèle d'item si défini
+        if (itemModelKey != null) {
+            meta.setItemModel(itemModelKey);
+        }
 
         item.setItemMeta(meta);
 
