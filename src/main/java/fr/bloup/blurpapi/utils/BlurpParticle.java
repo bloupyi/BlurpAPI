@@ -36,6 +36,15 @@ public class BlurpParticle {
         RAINBOW
     }
 
+    /**
+     * How points are placed inside a filled shape. {@link #GRID} uses a regular step grid;
+     * {@link #RANDOM} picks uniformly random positions in the volume (see {@link #fillSamples(int)}).
+     */
+    public enum FillPattern {
+        GRID,
+        RANDOM
+    }
+
     private Particle particle = Particle.FLAME;
     private int count = 1;
     private double offsetX = 0;
@@ -59,6 +68,9 @@ public class BlurpParticle {
 
     private boolean filled = true;
     private double surfaceThickness = -1;
+
+    private FillPattern fillPattern = FillPattern.GRID;
+    private Integer fillSamples;
 
     private Axis axis = Axis.Y;
     private double yawRad = 0;
@@ -196,6 +208,34 @@ public class BlurpParticle {
     public BlurpParticle hollow() {
         this.filled = false;
         return this;
+    }
+
+    public BlurpParticle fillPattern(FillPattern fillPattern) {
+        this.fillPattern = Objects.requireNonNull(fillPattern, "fillPattern");
+        return this;
+    }
+
+    /**
+     * Number of particles to spawn when {@link #fillPattern} is {@link FillPattern#RANDOM}.
+     * If unset, an estimate is derived from volume and {@link #step}.
+     */
+    public BlurpParticle fillSamples(int samples) {
+        if (samples <= 0) {
+            throw new IllegalArgumentException("fillSamples must be > 0");
+        }
+        this.fillSamples = samples;
+        return this;
+    }
+
+    /** Same as {@code fillPattern(FillPattern.RANDOM)} — use {@link #fillSamples(int)} to set count. */
+    public BlurpParticle randomFill() {
+        this.fillPattern = FillPattern.RANDOM;
+        return this;
+    }
+
+    /** Enables random fill with an explicit number of samples (see {@link #fillSamples(int)}). */
+    public BlurpParticle randomFill(int samples) {
+        return fillSamples(samples).fillPattern(FillPattern.RANDOM);
     }
 
     public BlurpParticle surfaceThickness(double thickness) {
@@ -461,10 +501,11 @@ public class BlurpParticle {
         return Color.fromRGB((int) Math.round(r * 255.0), (int) Math.round(g * 255.0), (int) Math.round(b * 255.0));
     }
 
-    private void spawnParticle(World world, Player player, Location loc, Object data) {
+    @SuppressWarnings("unchecked")
+    private <T> void spawnParticle(World world, Player player, Location loc, Object data) {
         if (player != null) {
             if (data != null) {
-                player.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, data);
+                player.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, (T) data);
             } else {
                 player.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed);
             }
@@ -472,9 +513,10 @@ public class BlurpParticle {
         }
 
         if (data != null) {
-            world.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, data, force);
+            world.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, (T) data, force);
         } else {
-            world.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, null, force);
+            // Explicit Void null: passing raw null makes generic T infer incorrectly and can show DUST for non-dust particles.
+            world.spawnParticle(particle, loc, count, offsetX, offsetY, offsetZ, speed, (Void) null, force);
         }
     }
 
@@ -482,6 +524,22 @@ public class BlurpParticle {
         double hx = size.getX() / 2.0;
         double hy = size.getY() / 2.0;
         double hz = size.getZ() / 2.0;
+
+        if (filled && fillPattern == FillPattern.RANDOM) {
+            int n = fillSamples != null
+                    ? fillSamples
+                    : Math.max(1, (int) Math.ceil((2.0 * hx) * (2.0 * hy) * (2.0 * hz) / (step * step * step)));
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (int s = 0; s < n; s++) {
+                Vector offset = rotateOffset(new Vector(
+                        (rnd.nextDouble() * 2.0 - 1.0) * hx,
+                        (rnd.nextDouble() * 2.0 - 1.0) * hy,
+                        (rnd.nextDouble() * 2.0 - 1.0) * hz));
+                Location loc = center.clone().add(offset);
+                spawnParticle(world, player, loc, dataForProgress((double) s / Math.max(1, n - 1)));
+            }
+            return;
+        }
 
         double thickness = surfaceThickness > 0 ? surfaceThickness : step;
         double eps = Math.max(thickness, step) / 2.0;
@@ -522,6 +580,19 @@ public class BlurpParticle {
     private void spawnSphere(World world, Player player, Location center) {
         if (radius <= 0) {
             throw new IllegalArgumentException("radius must be > 0");
+        }
+
+        if (filled && fillPattern == FillPattern.RANDOM) {
+            int n = fillSamples != null
+                    ? fillSamples
+                    : Math.max(1, (int) Math.ceil((4.0 / 3.0) * Math.PI * radius * radius * radius / (step * step * step)));
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (int s = 0; s < n; s++) {
+                Vector offset = rotateOffset(randomPointInBall(radius, rnd));
+                Location loc = center.clone().add(offset);
+                spawnParticle(world, player, loc, dataForProgress((double) s / Math.max(1, n - 1)));
+            }
+            return;
         }
 
         double thickness = surfaceThickness > 0 ? surfaceThickness : step;
@@ -586,20 +657,64 @@ public class BlurpParticle {
         }
 
         double circumference = 2.0 * Math.PI * radius;
-        int points = Math.max(1, (int) Math.ceil(circumference / step));
+        int ringPoints;
+        if (circlePoints != null) {
+            ringPoints = circlePoints;
+        } else {
+            ringPoints = Math.max(1, (int) Math.ceil(circumference / step));
+        }
         int layers = Math.max(1, (int) Math.ceil(height / step));
 
         double thickness = surfaceThickness > 0 ? surfaceThickness : step;
         double inner = Math.max(0, radius - thickness);
         double inner2 = inner * inner;
 
-        double total = Math.max(1.0, (double) (layers + 1) * (double) points);
+        if (filled && fillPattern == FillPattern.RANDOM) {
+            double vol = Math.PI * radius * radius * height;
+            int n = fillSamples != null
+                    ? fillSamples
+                    : Math.max(1, (int) Math.ceil(vol / (step * step * step)));
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (int s = 0; s < n; s++) {
+                Vector base = randomPointInCylinder(axis, radius, height, rnd);
+                Vector offset = rotateOffset(base);
+                Location loc = center.clone().add(offset);
+                spawnParticle(world, player, loc, dataForProgress((double) s / Math.max(1, n - 1)));
+            }
+            return;
+        }
+
+        if (filled) {
+            double diskArea = Math.PI * radius * radius;
+            double estPerLayer = Math.max(1.0, diskArea / (step * step));
+            double total = Math.max(1.0, estPerLayer * (layers + 1));
+            double index = 0;
+
+            for (int ly = 0; ly <= layers; ly++) {
+                double alongVal = (ly * height) / layers;
+                for (double d1 = -radius; d1 <= radius + 1e-9; d1 += step) {
+                    for (double d2 = -radius; d2 <= radius + 1e-9; d2 += step) {
+                        if (!inAxisAlignedDisk(axis, d1, d2, radius)) {
+                            continue;
+                        }
+                        Vector base = cylinderLocalVector(axis, alongVal, d1, d2);
+                        Vector offset = rotateOffset(base);
+                        Location loc = center.clone().add(offset);
+                        spawnParticle(world, player, loc, dataForProgress(index / total));
+                        index++;
+                    }
+                }
+            }
+            return;
+        }
+
+        double total = Math.max(1.0, (double) (layers + 1) * (double) ringPoints);
         double index = 0;
 
         for (int y = 0; y <= layers; y++) {
             double yy = (y * height) / layers;
-            for (int i = 0; i < points; i++) {
-                double a = (2.0 * Math.PI * i) / points;
+            for (int i = 0; i < ringPoints; i++) {
+                double a = (2.0 * Math.PI * i) / ringPoints;
 
                 Vector circle = switch (axis) {
                     case Y -> new Vector(Math.cos(a) * radius, 0, Math.sin(a) * radius);
@@ -614,11 +729,9 @@ public class BlurpParticle {
                 };
 
                 Vector base = circle.clone().add(along);
-                if (!filled) {
-                    double radial2 = circle.getX() * circle.getX() + circle.getY() * circle.getY() + circle.getZ() * circle.getZ();
-                    if (radial2 < inner2) {
-                        continue;
-                    }
+                double radial2 = circle.getX() * circle.getX() + circle.getY() * circle.getY() + circle.getZ() * circle.getZ();
+                if (radial2 < inner2) {
+                    continue;
                 }
 
                 Vector offset = rotateOffset(base);
@@ -635,6 +748,25 @@ public class BlurpParticle {
         }
         if (pyramidHeight <= 0) {
             throw new IllegalArgumentException("height must be > 0");
+        }
+
+        if (filled && fillPattern == FillPattern.RANDOM) {
+            double volApprox = (pyramidBase * pyramidBase * pyramidHeight) / 3.0;
+            int n = fillSamples != null
+                    ? fillSamples
+                    : Math.max(1, (int) Math.ceil(volApprox / (step * step * step)));
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            for (int s = 0; s < n; s++) {
+                double y = rnd.nextDouble() * pyramidHeight;
+                double t = y / pyramidHeight;
+                double half = (pyramidBase * (1.0 - t)) / 2.0;
+                double x = (rnd.nextDouble() * 2.0 - 1.0) * half;
+                double z = (rnd.nextDouble() * 2.0 - 1.0) * half;
+                Vector offset = rotateOffset(new Vector(x, y, z));
+                Location loc = center.clone().add(offset);
+                spawnParticle(world, player, loc, dataForProgress((double) s / Math.max(1, n - 1)));
+            }
+            return;
         }
 
         double thickness = surfaceThickness > 0 ? surfaceThickness : step;
@@ -662,6 +794,44 @@ public class BlurpParticle {
                 }
             }
         }
+    }
+
+    private static boolean inAxisAlignedDisk(Axis axis, double d1, double d2, double radius) {
+        return d1 * d1 + d2 * d2 <= radius * radius + 1e-9;
+    }
+
+    /**
+     * Point in cylinder space: axis is the extrusion direction; {@code alongVal} is [0, height] on that axis;
+     * {@code d1},{@code d2} span the disk plane (e.g. X,Z when axis is Y).
+     */
+    private static Vector cylinderLocalVector(Axis axis, double alongVal, double d1, double d2) {
+        return switch (axis) {
+            case Y -> new Vector(d1, alongVal, d2);
+            case X -> new Vector(alongVal, d1, d2);
+            case Z -> new Vector(d1, d2, alongVal);
+        };
+    }
+
+    private static Vector randomPointInCylinder(Axis axis, double radius, double height, ThreadLocalRandom rnd) {
+        double along = height * rnd.nextDouble();
+        double r = radius * Math.sqrt(rnd.nextDouble());
+        double ang = 2.0 * Math.PI * rnd.nextDouble();
+        double c = Math.cos(ang) * r;
+        double s = Math.sin(ang) * r;
+        return cylinderLocalVector(axis, along, c, s);
+    }
+
+    /** Uniform distribution by volume inside a ball of given radius (center at origin). */
+    private static Vector randomPointInBall(double radius, ThreadLocalRandom rnd) {
+        double u = Math.cbrt(rnd.nextDouble());
+        double rr = radius * u;
+        double cosTheta = 1.0 - 2.0 * rnd.nextDouble();
+        double sinTheta = Math.sqrt(Math.max(0.0, 1.0 - cosTheta * cosTheta));
+        double phi = 2.0 * Math.PI * rnd.nextDouble();
+        double x = rr * sinTheta * Math.cos(phi);
+        double y = rr * sinTheta * Math.sin(phi);
+        double z = rr * cosTheta;
+        return new Vector(x, y, z);
     }
 
     private Vector rotateOffset(Vector v) {

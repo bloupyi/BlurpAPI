@@ -6,7 +6,7 @@
 
     <groupId>fr.bloup</groupId>
     <artifactId>blurpapi</artifactId>
-    <version>1.4.8</version>
+    <version>1.4.10</version>
     <packaging>jar</packaging>
 
     <name>BlurpAPI</name>
