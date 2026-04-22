@@ -6,7 +6,7 @@
 
     <groupId>fr.bloup</groupId>
     <artifactId>blurpapi</artifactId>
-    <version>1.4.10</version>
+    <version>1.4.11</version>
     <packaging>jar</packaging>
 
     <name>BlurpAPI</name>
@@ -118,10 +118,9 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
-            <version>1.21.4-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>4.1.127.Final</version>
         </dependency>
 
         <!-- DB support -->
@@ -175,4 +174,18 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>with-spigot</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.spigotmc</groupId>
+                    <artifactId>spigot</artifactId>
+                    <version>1.21.4-R0.1-SNAPSHOT</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
