@@ -12,6 +12,12 @@
     <name>BlurpAPI</name>
     <description>A Paper API</description>
     <url>https://github.com/bloupyi/BlurpAPI</url>
+    <scm>
+        <url>https://github.com/bloupyi/BlurpAPI</url>
+        <connection>scm:git:https://github.com/bloupyi/BlurpAPI.git</connection>
+        <developerConnection>scm:git:git@github.com:bloupyi/BlurpAPI.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
 
     <licenses>
         <license>
@@ -47,14 +53,6 @@
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>BlurpAPI</name>
-            <url>https://maven.pkg.github.com/bloupyi/BlurpAPI</url>
-        </repository>
-    </distributionManagement>
 
     <repositories>
         <repository>

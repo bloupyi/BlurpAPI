@@ -15,6 +15,8 @@ BlurpAPI is a utility library for Minecraft plugins, providing useful features s
 ## Installation
 Add the following repository to your `pom.xml`:
 
+for jitpack use, refer to this page https://jitpack.io/#bloupyi/BlurpAPI
+
 ```xml
 <repository>
     <id>github</id>
