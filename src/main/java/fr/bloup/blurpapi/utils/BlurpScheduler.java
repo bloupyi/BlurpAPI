@@ -11,6 +11,8 @@ public class BlurpScheduler {
     private int afterTicks = 0;
     private int repeatTimes = 0;
     private int period = 1;
+
+    private boolean periodExplicit = false;
     private boolean async = false;
     private Runnable onComplete = null;
 
@@ -18,18 +20,22 @@ public class BlurpScheduler {
 
     private BukkitRunnable runnable = null;
 
+    /** Delai avant la premiere execution, en ticks. */
     public BlurpScheduler after(int ticks) {
-        afterTicks = ticks;
+        afterTicks = Math.max(0, ticks);
         return this;
     }
 
+    /** Nombre d'executions. Zero ou moins signifie "sans limite". */
     public BlurpScheduler repeat(int times) {
         this.repeatTimes = times;
         return this;
     }
 
+    /** Intervalle entre deux executions, en ticks. Rend la tache repetitive. */
     public BlurpScheduler period(int ticks) {
-        this.period = ticks;
+        this.period = Math.max(1, ticks);
+        this.periodExplicit = true;
         return this;
     }
 
@@ -48,53 +54,9 @@ public class BlurpScheduler {
     }
 
     public BlurpScheduler run(Consumer<BlurpScheduler> task) {
-        if (repeatTimes <= 0) {
-            if (period > 0) {
-                runnable = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        task.accept(BlurpScheduler.this);
-                        completeOnce();
-                    }
-                };
-                if (async) {
-                    runnable.runTaskTimerAsynchronously(BlurpAPI.getPlugin(), afterTicks, period);
-                } else {
-                    runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
-                }
-            } else {
-                runnable = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        task.accept(BlurpScheduler.this);
-                        completeOnce();
-                    }
-                };
-                if (async) {
-                    runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
-                } else {
-                    runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
-                }
-            }
-        } else if (period > 0) {
-            runnable = new BukkitRunnable() {
-                int counter = 0;
-                @Override
-                public void run() {
-                    if (counter++ >= repeatTimes) {
-                        cancel();
-                        completeOnce();
-                        return;
-                    }
-                    task.accept(BlurpScheduler.this);
-                }
-            };
-            if (async) {
-                runnable.runTaskTimerAsynchronously(BlurpAPI.getPlugin(), afterTicks, period);
-            } else {
-                runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
-            }
-        } else {
+        boolean repeating = repeatTimes > 0 || periodExplicit;
+
+        if (!repeating) {
             runnable = new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -102,17 +64,57 @@ public class BlurpScheduler {
                     completeOnce();
                 }
             };
-            if (async) {
-                runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
-            } else {
-                runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
-            }
+            schedule(false);
+            return this;
         }
+
+        if (repeatTimes <= 0) {
+            runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    task.accept(BlurpScheduler.this);
+                }
+            };
+            schedule(true);
+            return this;
+        }
+
+        runnable = new BukkitRunnable() {
+            int counter = 0;
+
+            @Override
+            public void run() {
+                if (counter++ >= repeatTimes) {
+                    cancel();
+                    completeOnce();
+                    return;
+                }
+                task.accept(BlurpScheduler.this);
+            }
+        };
+        schedule(true);
         return this;
     }
 
+    private void schedule(boolean timer) {
+        if (timer) {
+            if (async) {
+                runnable.runTaskTimerAsynchronously(BlurpAPI.getPlugin(), afterTicks, period);
+            } else {
+                runnable.runTaskTimer(BlurpAPI.getPlugin(), afterTicks, period);
+            }
+            return;
+        }
+
+        if (async) {
+            runnable.runTaskLaterAsynchronously(BlurpAPI.getPlugin(), afterTicks);
+        } else {
+            runnable.runTaskLater(BlurpAPI.getPlugin(), afterTicks);
+        }
+    }
+
     public void cancel() {
-        if (runnable != null) {
+        if (runnable != null && !runnable.isCancelled()) {
             runnable.cancel();
         }
         completeOnce();

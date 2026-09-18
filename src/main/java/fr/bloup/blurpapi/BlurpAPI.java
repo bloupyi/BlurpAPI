@@ -8,9 +8,7 @@ public final class BlurpAPI extends JavaPlugin {
     private static JavaPlugin pluginInstance;
 
     public static void init(JavaPlugin plugin) {
-        if (pluginInstance == null) {
-            pluginInstance = plugin;
-        }
+        pluginInstance = plugin;
         pluginInstance.getServer().getPluginManager().registerEvents(new BlurpRegionListener(new BlurpRegion()), pluginInstance);
     }
 
